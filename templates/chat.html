@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Chat</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url(https://www.pixelstalk.net/wp-content/uploads/images5/Cool-Green-and-Black-Wallpaper-High-Resolution.jpg);
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-size: cover;
+            /* Ensure the background image covers the container */
+            background-position: center;
+            /* Center the background image */
+            border-radius: 10px;
+            /* Adjusted border-radius */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            /* Apply blur to the background */
+            -webkit-backdrop-filter: blur(10px);
+            /* For Safari */
+            padding: 20px;
+            color: #333;
+            /* Ensure text color is readable */
+        }
+
+
+
+        h2 {
+            text-align: center;
+            color: white;
+        }
+
+        /* Chat Box */
+        #chat-box {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.6);
+            /* White with reduced opacity */
+            border-radius: 8px;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            /* Adjust blur radius as needed */
+        }
+
+        #messages {
+            flex: 1;
+            padding: 15px;
+            background: #e5ddd5;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Message Input Section */
+        #message-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            background: #f4f4f4;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h3 style="text-align: center;">Start Live Chat <i class="fa-solid fa-signal-stream"></i></h3>
+        <form method="POST" action="/chat">
+            <input type="text" name="username" placeholder="Enter your name" required>
+            <button type="submit" style="background-color: green;"><i class="fas fa-comments"></i> Start Chat <i
+                    class="fa fa-group"></i></button>
+        </form>
+        <h4 id="agents-status" style="text-align: center; display: flex; align-items: center; justify-content: center;">
+            <img src="https://media.tenor.com/yjOrdcOkLPUAAAAi/green-dot.gif" width="30px" height="30px"
+                style="margin-right: 8px; vertical-align: middle;">
+            <span id="agents-count" style="color: rgb(52, 196, 8);">7 </span>&nbsp; <i class="fa fa-group"></i> Agents
+            are now <span style="color: rgb(52, 196, 8);">&nbsp; Online</span>
+        </h4>
+
+        <script>
+            function updateAgentCount() {
+
+                const randomCount = Math.floor(Math.random() * 6) + 5;
+
+                document.getElementById('agents-count').textContent = randomCount;
+            }
+
+
+            setInterval(updateAgentCount, 2000);
+        </script>
+
+
+    </div>
+</body>
+
+</html>

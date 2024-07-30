@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-image: url(https://www.pixelstalk.net/wp-content/uploads/images5/Cool-Green-and-Black-Wallpaper-High-Resolution.jpg);
+            /* White with reduced opacity */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            /* Adjust blur radius as needed */
+        }
+
+        #chat-box {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.6);
+            /* White with reduced opacity */
+            border-radius: 8px;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            /* Adjust blur radius as needed */
+        }
+    </style>
+    <style>
+        /* Basic styling for the button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #dd8502;
+            /* Green background */
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            /* Shadow for 3D effect */
+            text-decoration: none;
+            /* Remove underline */
+            transition: all 0.3s ease;
+            /* Smooth transition for hover effect */
+            position: relative;
+            /* For 3D effect */
+        }
+
+        .back-button:hover {
+            background: #da3232;
+            /* Darker green on hover */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            /* Deeper shadow on hover */
+            transform: translateY(-3px);
+            /* Slight lift on hover */
+        }
+
+        .back-button:active {
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            /* Slightly reduced shadow on click */
+            transform: translateY(1px);
+            /* Slightly push down on click */
+        }
+
+        .back-button i {
+            position: relative;
+            top: -1px;
+            /* Align icon vertically */
+        }
+
+        .clock {
+            text-align: center;
+            font-size: 24px;
+            color: #e2e2e2;
+            /* Color for the clock text */
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h3 style="color: white; text-align: center;">Customer Care Dashboard</h3>
+        <div class="clock" id="clock"></div>
+
+        <script>
+            function updateTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+            }
+
+            // Update time every second
+            setInterval(updateTime, 1000);
+
+            // Initialize time on page load
+            updateTime();
+        </script>
+        <a href="/admin" class="back-button" style="margin: 10px;">
+            <i class="fa fa-arrow-left"></i>
+        </a>
+        <br>
+
+        <div id="chat-box">
+            <div id="messages">
+                {% for message in messages %}
+                <div class="message {{ 'admin' if message.user == 'Admin' else 'user' }}">
+                    <strong>{{ message.user }}:</strong> {{ message.message }}
+                    <span class="timestamp">{{ message.timestamp }}</span>
+                </div>
+                {% endfor %}
+            </div> <br>
+            <form id="message-form">
+                <input type="text" id="message-input" placeholder="Type your message here...">
+
+                <button type="submit" style="background-color: green;">Send <i class="fas fa-paper-plane"></i></button>
+            </form><br><br>
+            <button id="end-chat" class="secondary" style="background-color: red;">End Chat</button>
+        </div>
+    </div>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const chatId = "{{ chat_id }}";
+        const username = "Admin";
+
+        socket.emit('join_chat', { chat_id: chatId, username: username });
+
+        document.getElementById('message-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value;
+            if (message) {
+                socket.emit('send_message', { chat_id: chatId, message: message, user: username });
+                messageInput.value = '';
+            }
+        });
+
+        document.getElementById('end-chat').addEventListener('click', function () {
+            socket.emit('end_chat', { chat_id: chatId });
+            window.location.href = '/admin';
+        });
+
+        socket.on('message', function (data) {
+            if (data.chat_id === chatId) {
+                const messagesDiv = document.getElementById('messages');
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${data.user === 'Admin' ? 'admin' : 'user'}`;
+                messageElement.innerHTML = `<strong>${data.user}:</strong> ${data.message}<span class="timestamp">${data.timestamp}</span>`;
+                messagesDiv.appendChild(messageElement);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        });
+
+        socket.on('chat_ended', function (data) {
+            if (data.chat_id === chatId) {
+                alert('Chat has been ended.');
+                window.location.href = '/admin';
+            }
+        });
+    </script>
+</body>
+
+</html>

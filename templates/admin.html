@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <meta http-equiv="refresh" content="5">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url(https://www.pixelstalk.net/wp-content/uploads/images5/Cool-Green-and-Black-Wallpaper-High-Resolution.jpg);
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            /* Semi-transparent white background */
+            border-radius: 15px;
+            /* Increase border-radius for a smoother curve */
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            /* Subtle shadow */
+            backdrop-filter: blur(15px);
+            /* Increase blur for a stronger glass effect */
+            -webkit-backdrop-filter: blur(15px);
+            /* For Safari */
+            color: #333;
+            /* Ensure text color is readable */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* Optional: thin white border for extra glassy look */
+        }
+
+        .chat-item {
+            background: rgba(255, 255, 255, 0.7);
+            /* Higher opacity for better readability */
+            border-radius: 10px;
+            /* Rounded corners */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow */
+            backdrop-filter: blur(8px);
+            /* Lower blur for a less pronounced effect */
+            -webkit-backdrop-filter: blur(8px);
+            /* For Safari */
+            padding: 10px;
+            margin: 10px 0;
+            color: #333;
+            /* Ensure text color is readable */
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="color: whitesmoke;">Customer Care Dashboard</h1>
+        <h4 style="color: white;">New Chat Requests &nbsp;<i class="fa fa-inbox"></i></h4>
+        <div id="chats-list">
+            {% for chat_id, username in users.items() %}
+            <div class="chat-item" onclick="openChat('{{ chat_id }}')">
+                <strong>Chat with {{ username }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        function openChat(chatId) {
+            window.location.href = `/admin_chat/${chatId}`;
+        }
+    </script>
+</body>
+
+</html>

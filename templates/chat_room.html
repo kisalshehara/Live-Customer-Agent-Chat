@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-image: url(https://www.pixelstalk.net/wp-content/uploads/images5/Cool-Green-and-Black-Wallpaper-High-Resolution.jpg);
+            /* White with reduced opacity */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            /* Adjust blur radius as needed */
+        }
+
+        #chat-box {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.6);
+            /* White with reduced opacity */
+            border-radius: 8px;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            /* Adjust blur radius as needed */
+        }
+
+        #messages {
+            flex: 1;
+            padding: 15px;
+            background: #e5ddd5;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #message-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #message-input {
+            flex: 4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #send-button {
+            flex: 1;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: #28a745;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #send-button:hover {
+            background-color: #218838;
+        }
+
+        #end-chat {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: #dc3545;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #end-chat:hover {
+            background-color: #c82333;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+            max-width: 70%;
+            position: relative;
+            word-break: break-word;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user {
+            background: #dcf8c6;
+            align-self: flex-start;
+            border-radius: 15px 15px 0 15px;
+            margin-left: auto;
+        }
+
+        .message.admin {
+            background: #ffffff;
+            align-self: flex-end;
+            border-radius: 15px 15px 15px 0;
+            border: 1px solid #ddd;
+            margin-right: auto;
+        }
+
+        .message::after {
+            content: "";
+            position: absolute;
+            border-style: solid;
+        }
+
+        .message.user::after {
+            border-width: 10px 10px 0 0;
+            border-color: #dcf8c6 transparent transparent transparent;
+            left: 0;
+            bottom: -10px;
+        }
+
+        .message.admin::after {
+            border-width: 10px 0 0 10px;
+            border-color: #ffffff transparent transparent transparent;
+            right: 0;
+            bottom: -10px;
+        }
+
+        .timestamp {
+            display: block;
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3 style="text-align: center; color: white;">Chat with Ceylon Hospital</h3>
+        <div id="chat-box">
+            <div id="messages">
+                {% for message in messages %}
+                <div class="message {{ 'admin' if message.user == 'Admin' else 'user' }}">
+                    <strong>{{ message.user }}:</strong> {{ message.message }}
+                    <span class="timestamp">{{ message.timestamp }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <form id="message-form">
+                <input type="text" id="message-input" placeholder="Type your message here...">
+                <button type="submit" id="send-button"><i class="fas fa-paper-plane"></i></button>
+            </form>
+            <button id="end-chat">End Chat</button>
+        </div>
+    </div>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const chatId = "{{ chat_id }}";
+        const username = "{{ username }}";
+
+        socket.emit('join_chat', { chat_id: chatId, username: username });
+
+        document.getElementById('message-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value;
+            if (message) {
+                socket.emit('send_message', { chat_id: chatId, message: message, user: username });
+                messageInput.value = '';
+            }
+        });
+
+        document.getElementById('end-chat').addEventListener('click', function () {
+            socket.emit('end_chat', { chat_id: chatId });
+            window.location.href = '/';
+        });
+
+        socket.on('message', function (data) {
+            if (data.chat_id === chatId) {
+                const messagesDiv = document.getElementById('messages');
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${data.user === 'Admin' ? 'admin' : 'user'}`;
+                messageElement.innerHTML = `<strong>${data.user}:</strong> ${data.message}<span class="timestamp">${data.timestamp}</span>`;
+                messagesDiv.appendChild(messageElement);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        });
+
+        socket.on('chat_ended', function (data) {
+            if (data.chat_id === chatId) {
+                alert('Chat has been ended by the admin.');
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+
+</html>
